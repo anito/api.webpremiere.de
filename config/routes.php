@@ -58,7 +58,7 @@ return static function (RouteBuilder $routes) {
          */
     $routes->connect('/pages/*', 'Pages::display');
 
-    $routes->prefix('Api', function (RouteBuilder $builder) {
+    $routes->prefix('v1', function (RouteBuilder $builder) {
       // Only controllers explicitly enabled for API use will be accessible through API
       $builder->setExtensions(['json']);
 
