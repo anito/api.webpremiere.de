@@ -20,6 +20,7 @@ namespace App;
 
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
+use Cake\Core\Exception\MissingPluginException;
 use Cake\Datasource\FactoryLocator;
 use Cake\Error\Middleware\ErrorHandlerMiddleware;
 use Cake\Http\BaseApplication;
@@ -58,12 +59,16 @@ class Application extends BaseApplication
       );
     }
 
-    /*
-         * Only try to load DebugKit in development mode
-         * Debug Kit should not be installed on a production system
-         */
+    /** 
+     * Only try to load DebugKit in development mode
+     * Debug Kit should not be installed on a production system
+     */
     if (Configure::read('debug')) {
-      $this->addPlugin('DebugKit');
+      try {
+        $this->addPlugin('DebugKit');
+      } catch (MissingPluginException $e) {
+        // Do not halt if the plugin is missing
+      }
     }
 
     // Load more plugins here

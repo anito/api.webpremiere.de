@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Controller\Api;
+namespace App\Controller\V1;
 
-use App\Controller\Api\AppController;
+use App\Controller\V1\AppController;
 
 class UsersController extends AppController
 {
@@ -22,5 +22,19 @@ class UsersController extends AppController
         'Crud.Api',
       ],
     ]);
+  }
+
+  public function view($id)
+  {
+    $data = $this->Users->find('all')
+      ->contain(['Todos'])
+      ->where(['Users.id' => $id]);
+
+    $this->set([
+      'success' => true,
+      'data' => $data,
+    ]);
+
+    $this->viewBuilder()->setOption('serialize', ['success', 'data']);
   }
 }
