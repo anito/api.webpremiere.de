@@ -29,6 +29,7 @@ use Cake\Http\MiddlewareQueue;
 use Cake\ORM\Locator\TableLocator;
 use Cake\Routing\Middleware\AssetMiddleware;
 use Cake\Routing\Middleware\RoutingMiddleware;
+use CorsMiddleware\Middleware\CorsMiddleware;
 
 /**
  * Application setup class.
@@ -83,6 +84,7 @@ class Application extends BaseApplication
   public function middleware(MiddlewareQueue $middlewareQueue): MiddlewareQueue
   {
     $middlewareQueue
+      ->add(new CorsMiddleware(Configure::read('App.cors')))
       // Catch any exceptions in the lower layers,
       // and make an error page/response
       ->add(new ErrorHandlerMiddleware(Configure::read('Error')))
