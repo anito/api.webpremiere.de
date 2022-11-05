@@ -26,31 +26,31 @@ use Cake\Routing\Route\DashedRoute;
 use Cake\Routing\RouteBuilder;
 
 return static function (RouteBuilder $routes) {
-  /*
-     * The default class to use for all routes
-     *
-     * The following route classes are supplied with CakePHP and are appropriate
-     * to set as the default:
-     *
-     * - Route
-     * - InflectedRoute
-     * - DashedRoute
-     *
-     * If no call is made to `Router::defaultRouteClass()`, the class used is
-     * `Route` (`Cake\Routing\Route\Route`)
-     *
-     * Note that `Route` does not do any inflections on URLs which will result in
-     * inconsistently cased URLs when used with `{plugin}`, `{controller}` and
-     * `{action}` markers.
-     */
+  /**
+   * The default class to use for all routes
+   *
+   * The following route classes are supplied with CakePHP and are appropriate
+   * to set as the default:
+   *
+   * - Route
+   * - InflectedRoute
+   * - DashedRoute
+   *
+   * If no call is made to `Router::defaultRouteClass()`, the class used is
+   * `Route` (`Cake\Routing\Route\Route`)
+   *
+   * Note that `Route` does not do any inflections on URLs which will result in
+   * inconsistently cased URLs when used with `{plugin}`, `{controller}` and
+   * `{action}` markers.
+   */
   $routes->setRouteClass(DashedRoute::class);
 
   $routes->scope('/', function (RouteBuilder $routes) {
-    /*
-         * Here, we are connecting '/' (base path) to a controller called 'Pages',
-         * its action called 'display', and we pass a param to select the view file
-         * to use (in this case, templates/Pages/home.php)...
-         */
+    /**
+     * Here, we are connecting '/' (base path) to a controller called 'Pages',
+     * its action called 'display', and we pass a param to select the view file
+     * to use (in this case, templates/Pages/home.php)...
+     */
     $routes->connect('/', ['controller' => 'Pages', 'action' => 'display', 'home']);
 
     /*
@@ -71,35 +71,34 @@ return static function (RouteBuilder $routes) {
       $builder->fallbacks(DashedRoute::class);
     });
 
-    /*
-         * Connect catchall routes for all controllers.
-         *
-         * The `fallbacks` method is a shortcut for
-         *
-         * ```
-         * $routes->connect('/{controller}', ['action' => 'index']);
-         * $routes->connect('/{controller}/{action}/*', []);
-         * ```
-         *
-         * You can remove these routes once you've connected the
-         * routes you want in your application.
-         */
-    $routes->fallbacks();
+    /**
+     * Connect catchall routes for all controllers.
+     * The `fallbacks` method is a shortcut for
+     *
+     * ```
+     * $routes->connect('/{controller}', ['action' => 'index']);
+     * $routes->connect('/{controller}/{action}/*', []);
+     * ```
+     *
+     * You can remove these routes once you've connected the
+     * routes you want in your application.
+     */
+    $routes->fallbacks(DashedRoute::class);
   });
 
-  /*
-     * If you need a different set of middleware or none at all,
-     * open new scope and define routes there.
-     *
-     * ```
-     * $routes->scope('/api', function (RouteBuilder $routes) {
-     *     // No $routes->applyMiddleware() here.
-     *
-     *     // Parse specified extensions from URLs
-     *     // $routes->setExtensions(['json', 'xml']);
-     *
-     *     // Connect API actions here.
-     * });
-     * ```
-     */
+  /**
+   * If you need a different set of middleware or none at all,
+   * open new scope and define routes there.
+   *
+   * ```
+   * $routes->scope('/api', function (RouteBuilder $routes) {
+   *     // No $routes->applyMiddleware() here.
+   *
+   *     // Parse specified extensions from URLs
+   *     // $routes->setExtensions(['json', 'xml']);
+   *
+   *     // Connect API actions here.
+   * });
+   * ```
+   */
 };
