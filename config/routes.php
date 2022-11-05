@@ -47,8 +47,6 @@ return static function (RouteBuilder $routes) {
   $routes->setRouteClass(DashedRoute::class);
 
   $routes->scope('/', function (RouteBuilder $routes) {
-    // Register scoped middleware for in scopes.
-    $routes->registerMiddleware('csrf', new CsrfProtectionMiddleware());
     /**
      * Here, we are connecting '/' (base path) to a controller called 'Pages',
      * its action called 'display', and we pass a param to select the view file
@@ -63,13 +61,10 @@ return static function (RouteBuilder $routes) {
 
     $routes->prefix('v1', function (RouteBuilder $builder) {
       // Only controllers explicitly enabled for API use will be accessible through API
-      $builder->setExtensions(['json']);
+      $builder->setExtensions(['json, xml']);
 
       $builder->resources('Todos');
       $builder->resources('Users');
-
-      $builder->connect('/login', ['controller' => 'Users', 'action' => 'login']);
-      $builder->connect('/logout', ['controller' => 'Users', 'action' => 'logout']);
 
       $builder->fallbacks(DashedRoute::class);
     });
