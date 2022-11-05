@@ -13,7 +13,8 @@
         "firebase/php-jwt": "^6.3",
         "friendsofcake/crud": "^6.1",
         "kaz29/cakephp-cors-middleware-plugin": "^1.0",
-        "mobiledetect/mobiledetectlib": "^2.8"
+        "mobiledetect/mobiledetectlib": "^2.8",
+        "ozee31/cakephp-cors": "^2.0"
     },
     "require-dev": {
         "cakephp/bake": "^2.6",
