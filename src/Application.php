@@ -94,7 +94,14 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
   public function getAuthenticationService(ServerRequestInterface $request): AuthenticationServiceInterface
   {
     $path = $request->getUri()->getPath();
-    $fragment = $request->getUri();
+    $service = new AuthenticationService();
+
+    if (strpos($path, '/v1') !== 0) {
+      $service->setConfig([
+        'unauthenticatedRedirect' => '/users/login',
+        'queryParam' => 'redirect',
+      ]);
+    }
 
     $fields = [
       IdentifierInterface::CREDENTIAL_USERNAME => 'username',
@@ -104,8 +111,6 @@ class Application extends BaseApplication implements AuthenticationServiceProvid
       'className' => 'Authentication.Orm',
       'userModel' => 'Users', // default
     ];
-
-    $service = new AuthenticationService();
 
     // Load the authenticators, you want session first
     $service->loadAuthenticator('Authentication.Session');
