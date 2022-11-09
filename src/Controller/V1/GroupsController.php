@@ -6,12 +6,12 @@ use App\Controller\V1\AppController;
 use Cake\Event\Event;
 use Cake\View\JsonView;
 
-class TodosController extends AppController
+class GroupsController extends AppController
 {
   public function initialize(): void
   {
     parent::initialize();
-    $this->Authentication->addUnauthenticatedActions([]);
+    $this->Authentication->addUnauthenticatedActions(['index']);
 
     $this->loadComponent('Crud.Crud', [
       'actions' => [
@@ -29,16 +29,12 @@ class TodosController extends AppController
 
   public function index()
   {
-    $id = $this->Authentication->getIdentity()->getIdentifier();
-    $this->Crud->on('beforePaginate', function (Event $event) use ($id) {
-      $event->getSubject()->query
-        ->where(['Todos.user_id' => $id]);
-    });
-    return $this->Crud->execute();
-  }
-
-  public function add()
-  {
-    return $this->Crud->execute();
+    if ($this->request->is('json')) {
+      return $this->Crud->execute();
+    } else {
+      $data = $this->paginate();
+      $success = true;
+      $this->set('serialize', compact('success', 'data'));
+    }
   }
 }

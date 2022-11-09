@@ -41,11 +41,59 @@ class UsersTable extends Table
     parent::initialize($config);
 
     $this->setTable('users');
-    $this->setDisplayField('id');
+    $this->setDisplayField('username');
     $this->setPrimaryKey('id');
+
+    $this->belongsTo('Groups', [
+      'foreignKey' => 'group_id',
+    ]);
 
     $this->hasMany('Todos', [
       'foreignKey' => 'user_id',
     ]);
+  }
+
+  /**
+   * Default validation rules.
+   *
+   * @param \Cake\Validation\Validator $validator Validator instance.
+   * @return \Cake\Validation\Validator
+   */
+  public function validationDefault(Validator $validator): \Cake\Validation\Validator
+  {
+    $validator
+      // dont use uuid validation as long as there are still any scalar user ids
+      // ->uuid('id', 'No valid UUID')
+      ->scalar('id')
+      ->allowEmptyString('id', null, 'create')
+      ->add('id', 'unique', ['rule' => 'validateUnique', 'provider' => 'table', 'message' => 'Id already exists']);
+
+    $validator
+      ->scalar('username')
+      ->maxLength('username', 255)
+      ->notEmptyString('username', __('Username can not be empty'))
+      ->add('username', 'unique', ['rule' => 'validateUnique', 'provider' => 'table', 'message' => 'Username already exists']);
+
+    $validator
+      ->scalar('password')
+      ->maxLength('password', 255)
+      ->allowEmptyString('password');
+
+    return $validator;
+  }
+
+  /**
+   * Returns a rules checker object that will be used for validating
+   * application integrity.
+   *
+   * @param \Cake\ORM\RulesChecker $rules The rules object to be modified.
+   * @return \Cake\ORM\RulesChecker
+   */
+  public function buildRules(RulesChecker $rules): RulesChecker
+  {
+    $rules->add($rules->isUnique(['id']));
+    $rules->add($rules->existsIn(['group_id'], 'Groups'));
+
+    return $rules;
   }
 }

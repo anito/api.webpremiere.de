@@ -18,6 +18,11 @@ declare(strict_types=1);
 
 namespace App;
 
+use Authentication\AuthenticationService;
+use Authentication\AuthenticationServiceInterface;
+use Authentication\AuthenticationServiceProviderInterface;
+use Authentication\Identifier\IdentifierInterface;
+use Authentication\Middleware\AuthenticationMiddleware;
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
 use Cake\Core\Exception\MissingPluginException;
@@ -29,7 +34,9 @@ use Cake\Http\MiddlewareQueue;
 use Cake\ORM\Locator\TableLocator;
 use Cake\Routing\Middleware\AssetMiddleware;
 use Cake\Routing\Middleware\RoutingMiddleware;
+use Cake\Utility\Security;
 use CorsMiddleware\Middleware\CorsMiddleware;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Application setup class.
@@ -37,7 +44,7 @@ use CorsMiddleware\Middleware\CorsMiddleware;
  * This defines the bootstrapping logic and middleware layers you
  * want to use in your application.
  */
-class Application extends BaseApplication
+class Application extends BaseApplication implements AuthenticationServiceProviderInterface
 {
   /**
    * Load all the application configuration and bootstrap logic.
@@ -48,6 +55,8 @@ class Application extends BaseApplication
   {
     // Call parent to load bootstrap from files.
     parent::bootstrap();
+
+    $this->addPlugin('Authentication');
 
     $this->addPlugin('Crud');
 
@@ -73,6 +82,48 @@ class Application extends BaseApplication
     }
 
     // Load more plugins here
+  }
+
+  /**
+   * Returns a service provider instance.
+   *
+   * @param \Psr\Http\Message\ServerRequestInterface $request Request
+   * @param \Psr\Http\Message\ResponseInterface $response Response
+   * @return \Authentication\AuthenticationServiceInterface
+   */
+  public function getAuthenticationService(ServerRequestInterface $request): AuthenticationServiceInterface
+  {
+    $path = $request->getUri()->getPath();
+    $fragment = $request->getUri();
+
+    $fields = [
+      IdentifierInterface::CREDENTIAL_USERNAME => 'username',
+      IdentifierInterface::CREDENTIAL_PASSWORD => 'password',
+    ];
+    $resolver = [
+      'className' => 'Authentication.Orm',
+      'userModel' => 'Users', // default
+    ];
+
+    $service = new AuthenticationService();
+
+    // Load the authenticators, you want session first
+    $service->loadAuthenticator('Authentication.Session');
+    $service->loadAuthenticator('Authentication.Form', [
+      'fields' => $fields,
+    ]);
+    $service->loadAuthenticator('Authentication.Jwt', [
+      'header' => 'Authorization',
+      'queryParam' => 'token',
+      'tokenPrefix' => 'Bearer',
+      'algorithm' => 'HS256',
+      'secretKey' => Security::getSalt(),
+      'returnPayload' => false
+    ]);
+    $service->loadIdentifier('Authentication.JwtSubject', compact('resolver'));
+    $service->loadIdentifier('Authentication.Password', compact('fields', 'resolver'));
+
+    return $service;
   }
 
   /**
@@ -105,17 +156,17 @@ class Application extends BaseApplication
       // Parse various types of encoded request bodies so that they are
       // available as array through $request->getData()
       // https://book.cakephp.org/4/en/controllers/middleware.html#body-parser-middleware
-      ->add(new BodyParserMiddleware());
+      ->add(new BodyParserMiddleware())
 
-    // Cross Site Request Forgery (CSRF) Protection Middleware
-    // https://book.cakephp.org/4/en/security/csrf.html#cross-site-request-forgery-csrf-middleware
-    // ->add(new CsrfProtectionMiddleware([
-    //   'httponly' => true,
-    // ]));
+      // Cross Site Request Forgery (CSRF) Protection Middleware
+      // https://book.cakephp.org/4/en/security/csrf.html#cross-site-request-forgery-csrf-middleware
+      // ->add(new CsrfProtectionMiddleware([
+      //   'httponly' => true,
+      // ]));
 
-    // Authentication should be added *after* RoutingMiddleware.
-    // So that subdirectory information and routes are loaded.
-    // ->add(new AuthenticationMiddleware($this))
+      // Authentication should be added *after* RoutingMiddleware.
+      // So that subdirectory information and routes are loaded.
+      ->add(new AuthenticationMiddleware($this));
 
     // ->add(new FootprintMiddleware());
 

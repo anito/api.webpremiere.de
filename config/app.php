@@ -5,18 +5,10 @@ use Cake\Database\Connection;
 use Cake\Database\Driver\Mysql;
 use Cake\Log\Engine\FileLog;
 use Cake\Mailer\Transport\MailTransport;
+use Cake\Error\Renderer\WebExceptionRenderer;
+use Crud\Error\ExceptionRenderer;
 
 return [
-  /*
-     * Debug Level:
-     *
-     * Production Mode:
-     * false: No error messages, errors, or warnings shown.
-     *
-     * Development Mode:
-     * true: Errors and warnings shown.
-     */
-  'debug' => filter_var(env('DEBUG', false), FILTER_VALIDATE_BOOLEAN),
 
   /*
      * Configure basic information about the application.
@@ -185,6 +177,7 @@ return [
      */
   'Error' => [
     'errorLevel' => E_ALL,
+    'exceptionRenderer' => ExceptionRenderer::class,
     'skipLog' => [],
     'log' => true,
     'trace' => true,

@@ -26,10 +26,47 @@ class AppController extends Controller
 
     parent::initialize();
     $this->loadComponent('RequestHandler');
+    $this->loadComponent('Authentication.Authentication');
   }
 
   public function viewClasses(): array
   {
     return [JsonView::class];
+  }
+
+  protected function _createToken($id, $exp = null)
+  {
+    if (!isset($exp)) {
+      $expires = time() + Configure::read('Token.lifetime');
+    } else {
+      $expires = $exp;
+    }
+    return JWT::encode(
+      [
+        'sub' => $id,
+        'exp' => $expires,
+      ],
+      Security::getSalt(),
+      'HS256'
+    );
+  }
+
+  protected function _checkValidationErrors(Entity $entity)
+  {
+    if ($entity->hasErrors()) {
+      $errors = $entity->getErrors();
+
+      return $this->_firstValue($errors);
+    }
+  }
+
+  protected function _firstValue($val): String
+  {
+    if (is_array($val)) {
+      $key = array_key_first($val);
+      return $this->_firstValue($val[$key]);
+    } else {
+      return $val;
+    }
   }
 }
