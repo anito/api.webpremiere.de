@@ -19,6 +19,9 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Cake\Controller\Controller;
+use Cake\Core\Configure;
+use Cake\Utility\Security;
+use Firebase\JWT\JWT;
 
 /**
  * Application Controller
@@ -52,5 +55,22 @@ class AppController extends Controller
          * see https://book.cakephp.org/4/en/controllers/components/form-protection.html
          */
     //$this->loadComponent('FormProtection');
+  }
+
+  protected function _createToken($id, $exp = null)
+  {
+    if (!isset($exp)) {
+      $expires = time() + Configure::read('Token.lifetime');
+    } else {
+      $expires = $exp;
+    }
+    return JWT::encode(
+      [
+        'sub' => $id,
+        'exp' => $expires,
+      ],
+      Security::getSalt(),
+      'HS256'
+    );
   }
 }

@@ -30,6 +30,7 @@ class UsersController extends AppController
         $user = $this->Authentication->getIdentity();
 
         $user = $this->Users->patchEntity($user, [
+          'token' => $this->_createToken($user->id),
           'last_login' => date("Y-m-d H:i:s")
         ]);
         $this->Users->save($user);
