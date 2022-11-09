@@ -44,6 +44,7 @@ class User extends Entity implements IdentityInterface
     'token' => true,
     'todos' => true,
     'group_id' => true,
+    'last_login' => true,
   ];
 
   /**
