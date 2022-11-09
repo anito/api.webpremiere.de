@@ -11,7 +11,7 @@ class UsersController extends AppController
   public function initialize(): void
   {
     parent::initialize();
-    $this->Authentication->addUnauthenticatedActions(['logout', 'login', 'add', 'view']);
+    $this->Authentication->addUnauthenticatedActions(['logout', 'login', 'add']);
 
     $this->loadComponent('Crud.Crud', [
       'actions' => [
@@ -75,6 +75,14 @@ class UsersController extends AppController
 
   public function add()
   {
+    $this->Crud->on('beforeSave', function (Event $event) {
+      $entity = $event->getSubject()->entity;
+      $this->Users->patchEntity($entity, [
+        'token' => $this->_createToken($entity->id),
+        'last_login' => date("Y-m-d H:i:s")
+      ]);
+    });
+
     $this->Crud->on('afterSave', function (Event $event) {
 
       $entity = $event->getSubject()->entity;
